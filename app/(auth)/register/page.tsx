@@ -153,9 +153,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    if (!normalizedEmail.endsWith(DIU_DOMAIN)) {
-      setError("Please use your official DIU email address.");
-      return;
+    const diuEmailPattern = /^[a-zA-Z0-9._%+-]+@diu\.edu\.bd$/;
+
+    if (!diuEmailPattern.test(normalizedEmail)) {
+    setError("Please enter a valid DIU email address.");
+    return;
     }
 
     if (password.length < 8) {
@@ -169,8 +171,15 @@ export default function RegisterPage() {
     }
 
     if (!fullName.trim() || !studentId.trim()) {
-      setError("Please complete all required fields.");
-      return;
+    setError("Please complete all required fields.");
+    return;
+    }
+
+   const studentIdPattern = /^\d{3}-\d{2}-\d{3,4}$/; 
+
+    if (!studentIdPattern.test(studentId.trim())) {
+    setError("Please enter a valid DIU Student ID.");
+    return;
     }
 
     setLoading(true);
@@ -188,13 +197,14 @@ export default function RegisterPage() {
         },
       });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data.session) {
-        await supabase.auth.signOut();
-      }
+    if (data.session) {
+    window.location.href = "/dashboard";
+    return;
+    }
 
-      setSuccess(true);
+    setSuccess(true);
     } catch (err: unknown) {
       setError(
         err instanceof Error
@@ -206,31 +216,42 @@ export default function RegisterPage() {
     }
   }
 
-  async function handleResend() {
-    setResending(true);
-    setResent(false);
-
-    try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: normalizedEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
-      setResent(true);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Could not resend the email. Please try again."
-      );
-    } finally {
-      setResending(false);
-    }
+    
+async function handleResend() {
+  if (!normalizedEmail) {
+    setError("Email address is missing.");
+    return;
   }
+
+  setResending(true);
+  setError("");
+  setResent(false);
+
+  try {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: normalizedEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    setResent(true);
+  } catch (err: unknown) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to resend confirmation email. Please try again."
+    );
+  } finally {
+    setResending(false);
+  }
+}
+
 
   return (
     <main className="grid min-h-screen bg-[#f3f7f5] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
@@ -536,9 +557,9 @@ export default function RegisterPage() {
                     size={16}
                     className="mt-0.5 shrink-0 text-[#176f59]"
                   />
-                  We&apos;ll email a confirmation link to verify you&apos;re a
-                  DIU student. Your student ID is only used to verify your
-                  account.
+                    We&apos;ll send a confirmation link to your DIU email
+                    address. Your student ID will be associated with your
+                    CampusRecover profile.
                 </p>
               </form>
 

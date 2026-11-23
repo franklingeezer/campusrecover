@@ -34,9 +34,13 @@ export async function proxy(request: NextRequest) {
   );
 
   // Refresh and validate the authentication claims.
-  await supabase.auth.getClaims();
+  const { error } = await supabase.auth.getClaims();
 
-  return supabaseResponse;
+    if (error) {
+    console.error("Supabase session validation:", error.message);
+    }
+
+    return supabaseResponse;
 }
 
 export const config = {
