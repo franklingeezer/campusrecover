@@ -1,7 +1,8 @@
-
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
+
   --background: #f6f8f7;
   --foreground: #26352f;
   --primary: #176b55;
@@ -9,6 +10,28 @@
   --muted: #64748b;
   --surface: #ffffff;
   --sage: #e6efea;
+
+  --border: #e2e8e5;
+  --input: #ffffff;
+  --sidebar: #ffffff;
+  --card: #ffffff;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #101a16;
+  --foreground: #e5eee9;
+  --primary: #55b995;
+  --primary-dark: #a3d8c2;
+  --muted: #9aada4;
+  --surface: #192720;
+  --sage: #263b31;
+
+  --border: #30443a;
+  --input: #192720;
+  --sidebar: #14221b;
+  --card: #192720;
 }
 
 * {
@@ -23,6 +46,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 button,
@@ -32,5 +58,22 @@ a {
 
 ::selection {
   background: #c9e4d7;
-  color: var(--primary-dark);
+  color: #173d32;
+}
+
+.dark ::selection {
+  background: #285c48;
+  color: #ffffff;
+}
+
+/* Hide all scrollbars without disabling scrolling */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }

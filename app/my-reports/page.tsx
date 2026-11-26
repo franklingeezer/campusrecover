@@ -13,6 +13,7 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 export default function MyReportsPage() {
   return (
@@ -31,6 +32,8 @@ export default function MyReportsPage() {
 }
 
 async function MyReportsContent() {
+  
+await connection();
   const supabase = await createClient();
 
   // Verify authentication

@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import ClaimForm from "./claim-form";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,9 +35,10 @@ export default function ItemDetailsPage({ params }: Props) {
 }
 
 async function ItemDetailsContent({ params }: Props) {
+  await connection();
+
   const { id } = await params;
   const supabase = await createClient();
-
   const {
     data: { user },
     error: authError,

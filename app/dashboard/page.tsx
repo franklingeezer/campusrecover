@@ -22,10 +22,10 @@ async function DashboardContent() {
 
   // Fetch the user's profile.
   const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("full_name, student_id, email, department")
-    .eq("id", user.id)
-    .maybeSingle();
+  .from("profiles")
+  .select("full_name, student_id, email, department, role")
+  .eq("id", user.id)
+  .maybeSingle();
 
   if (profileError) {
     console.error("Profile loading error:", profileError);
@@ -107,6 +107,8 @@ async function DashboardContent() {
     email: profile?.email || user.email || "",
 
     department: profile?.department || null,
+    
+    role: profile?.role || "student",
   };
 
   // Prepare statistics.

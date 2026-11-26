@@ -12,7 +12,7 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
-
+import { connection } from "next/server";
 
 const statusStyles: Record<string, string> = {
   submitted: "bg-blue-50 text-blue-700",
@@ -63,6 +63,7 @@ export default function MyClaimsPage() {
 }
 
 async function MyClaimsContent() {
+   await connection();
   const supabase = await createClient();
 
   const {

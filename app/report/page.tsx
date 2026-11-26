@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,6 +15,8 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
+
 
 type Category = {
   id: number;
@@ -27,8 +29,17 @@ type Location = {
   building: string | null;
 };
 
-export default function ReportPage() {
+function ReportForm() {
   const supabase = createClient();
+  const searchParams = useSearchParams();
+
+useEffect(() => {
+  const type = searchParams.get("type");
+
+  if (type === "lost" || type === "found") {
+    setReportType(type);
+  }
+}, [searchParams]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [reportType, setReportType] = useState<"lost" | "found">("lost");
@@ -622,5 +633,21 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function ReportPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#F4F8F6] px-5 py-16">
+          <div className="mx-auto max-w-3xl rounded-xl border border-[#E0EAE5] bg-white p-8 text-sm text-slate-500">
+            Loading report form...
+          </div>
+        </main>
+      }
+    >
+      <ReportForm />
+    </Suspense>
   );
 }

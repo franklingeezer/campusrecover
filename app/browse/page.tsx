@@ -13,6 +13,7 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 type BrowsePageProps = {
   searchParams: Promise<{
@@ -43,6 +44,7 @@ export default function BrowsePage({
 async function BrowseContent({
   searchParams,
 }: BrowsePageProps) {
+  await connection();
   const supabase = await createClient();
   const params = await searchParams;
 
