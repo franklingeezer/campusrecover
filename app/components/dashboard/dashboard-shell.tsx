@@ -28,8 +28,30 @@ type Profile = {
   department: string | null;
 };
 
+type DashboardStats = {
+  lostItems: number;
+  foundItems: number;
+  activeReports: number;
+  itemsReturned: number;
+};
+
+type RecentReport = {
+  id: string;
+  title: string;
+  report_type: "lost" | "found";
+  status: string;
+  created_at: string;
+  category_name: string;
+  location_name: string;
+};
+
+
+
+
 type Props = {
   profile: Profile;
+  stats: DashboardStats;
+  recentReports: RecentReport[];
 };
 
 const navigation = [
@@ -60,7 +82,11 @@ const navigation = [
   },
 ];
 
-export default function DashboardShell({ profile }: Props) {
+  export default function DashboardShell({
+    profile,
+    stats,
+    recentReports,
+  }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = profile.full_name
@@ -262,53 +288,54 @@ export default function DashboardShell({ profile }: Props) {
               </div>
             </section>
 
-            {/* Statistics */}
-            <section>
-              <div className="mb-4">
-                <h3 className="font-semibold text-[#173D32]">
-                  Overview
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  Your lost and found activity at a glance.
+            
+{/* Statistics */}
+    <section>
+      <div className="mb-4">
+        <h3 className="font-semibold text-[#173D32]">
+          Overview
+        </h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Your lost and found activity at a glance.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Lost items", icon: Search, value: stats.lostItems },
+          { label: "Found items", icon: Package, value: stats.foundItems },
+          { label: "Active reports", icon: Clock3, value: stats.activeReports },
+          { label: "Items returned", icon: Handshake, value: stats.itemsReturned },
+        ].map((stat) => {
+          const Icon = stat.icon;
+
+          return (
+            <div
+              key={stat.label}
+              className="rounded-xl border border-[#E1EAE5] bg-white p-5 transition hover:border-[#A9CDBB]"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-slate-500">
+                  {stat.label}
                 </p>
+                <div className="rounded-lg bg-[#E9F4EF] p-2 text-[#176F59]">
+                  <Icon size={19} />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {[
-                  { label: "Lost items", icon: Search },
-                  { label: "Found items", icon: Package },
-                  { label: "Active reports", icon: Clock3 },
-                  { label: "Items returned", icon: Handshake },
-                ].map((stat) => {
-                  const Icon = stat.icon;
+              <p className="mt-5 text-3xl font-bold text-[#173D32]">
+                {stat.value.toLocaleString()}
+              </p>
 
-                  return (
-                    <div
-                      key={stat.label}
-                      className="rounded-xl border border-[#E1EAE5] bg-white p-5 transition hover:border-[#A9CDBB]"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-slate-500">
-                          {stat.label}
-                        </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Across CampusRecover
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
 
-                        <div className="rounded-lg bg-[#E9F4EF] p-2 text-[#176F59]">
-                          <Icon size={19} />
-                        </div>
-                      </div>
-
-                      <p className="mt-5 text-3xl font-bold text-[#173D32]">
-                        —
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        Awaiting report integration
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
 
             {/* Quick actions */}
             <section>
@@ -366,20 +393,69 @@ export default function DashboardShell({ profile }: Props) {
                 </span>
               </div>
 
-              <div className="flex min-h-[210px] flex-col items-center justify-center px-6 py-10 text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#E9F4EF] text-[#176F59]">
-                  <Package size={25} />
-                </div>
+              
+{recentReports.length === 0 ? (
+  <div className="flex min-h-[210px] flex-col items-center justify-center px-6 py-10 text-center">
+    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#E9F4EF] text-[#176F59]">
+      <Package size={25} />
+    </div>
 
-                <h4 className="font-semibold text-[#173D32]">
-                  No reports to display yet
-                </h4>
+    <h4 className="font-semibold text-[#173D32]">
+      No reports to display yet
+    </h4>
 
-                <p className="mt-2 max-w-sm text-sm text-slate-500">
-                  Once students start submitting lost and found reports,
-                  they'll appear here.
-                </p>
-              </div>
+    <p className="mt-2 max-w-sm text-sm text-slate-500">
+      Once students start submitting lost and found reports,
+      they'll appear here.
+    </p>
+  </div>
+) : (
+  <div className="divide-y divide-[#EAF0EC]">
+    {recentReports.map((report) => (
+      <div
+        key={report.id}
+        className="flex flex-col gap-3 px-6 py-5 transition hover:bg-[#F8FBF9] sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="mt-1 rounded-lg bg-[#E9F4EF] p-2 text-[#176F59]">
+            <Package size={19} />
+          </div>
+
+          <div className="min-w-0">
+            <h4 className="truncate text-sm font-semibold text-[#173D32]">
+              {report.title}
+            </h4>
+
+            <p className="mt-1 text-xs text-slate-500">
+              {report.category_name} · {report.location_name}
+            </p>
+
+            <p className="mt-1 text-xs text-slate-400">
+              {report.created_at}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 pl-11 sm:pl-0">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              report.report_type === "lost"
+                ? "bg-red-50 text-red-600"
+                : "bg-[#E9F4EF] text-[#176F59]"
+            }`}
+          >
+            {report.report_type === "lost" ? "Lost" : "Found"}
+          </span>
+
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium capitalize text-slate-600">
+            {report.status.replace("_", " ")}
+          </span>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
             </section>
 
             {/* Profile summary */}
@@ -423,7 +499,7 @@ export default function DashboardShell({ profile }: Props) {
             </section>
 
             <footer className="pb-4 text-center text-xs text-slate-400">
-              © {new Date().getFullYear()} CampusRecover. Built for the DIU community.
+              © 2026 CampusRecover. Built for the DIU community.
             </footer>
 
           </div>
