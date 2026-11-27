@@ -31,6 +31,7 @@ type Profile = {
   email: string;
   department: string | null;
   role: string;
+  avatar_url: string | null;
 };
 
 type DashboardStats = {
@@ -321,9 +322,17 @@ export default function DashboardShell({
           {/* Sidebar profile */}
           <div className="border-t border-[var(--border)] p-4">
             <div className="mb-4 flex items-center gap-3 rounded-lg bg-[var(--background)] p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--sage)] text-sm font-bold text-[var(--primary)]">
-                {initials}
-              </div>
+              {profile.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={profile.full_name}
+              className="h-10 w-10 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--sage)] text-sm font-bold text-[var(--primary)]">
+              {initials}
+            </div>
+          )}
 
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">
@@ -363,9 +372,17 @@ export default function DashboardShell({
                 Verified DIU member
               </div>
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sage)] text-sm font-bold text-[var(--primary)]">
-                {initials}
-              </div>
+              {profile.avatar_url ? (
+  <img
+    src={profile.avatar_url}
+    alt={profile.full_name}
+    className="h-10 w-10 rounded-full object-cover"
+  />
+) : (
+  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sage)] text-sm font-bold text-[var(--primary)]">
+    {initials}
+  </div>
+)}
             </div>
           </header>
 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
@@ -13,6 +12,11 @@ import {
 type Props = {
   initialTheme: ThemePreference;
 };
+
+type Status =
+  | { kind: "idle" }
+  | { kind: "saved" }
+  | { kind: "local-only"; text: string };
 
 const themes = [
   {
@@ -36,15 +40,18 @@ const themes = [
 ];
 
 export default function AppearanceSettings({ initialTheme }: Props) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
 
   const [selectedTheme, setSelectedTheme] =
     useState<ThemePreference>(initialTheme);
-
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useState("");
 
+  // Apply the account preference once the page loads, and again only if the
+  // saved value itself changes.
   useEffect(() => {
+    setMounted(true);
     setSelectedTheme(initialTheme);
     setTheme(initialTheme);
   }, [initialTheme, setTheme]);
@@ -52,26 +59,26 @@ export default function AppearanceSettings({ initialTheme }: Props) {
   function handleThemeChange(nextTheme: ThemePreference) {
     if (nextTheme === selectedTheme || isPending) return;
 
-    const previousTheme = selectedTheme;
-
     setSelectedTheme(nextTheme);
-    setMessage("");
+    setStatus({ kind: "idle" });
 
-    // Apply the theme immediately.
+    // Apply immediately so the toggle always works on this device.
     setTheme(nextTheme);
 
-    // Save the preference in Supabase.
     startTransition(async () => {
       const result = await updateThemePreference(nextTheme);
 
       if (!result.success) {
-        setSelectedTheme(previousTheme);
-        setTheme(previousTheme);
-        setMessage(result.error ?? "Something went wrong.");
+        // Keep the chosen theme on this device, but be honest that it was
+        // not saved to the account.
+        setStatus({
+          kind: "local-only",
+          text: `${result.error} Your choice is applied on this device only.`,
+        });
         return;
       }
 
-      setMessage("Appearance preference saved.");
+      setStatus({ kind: "saved" });
     });
   }
 
@@ -113,7 +120,7 @@ export default function AppearanceSettings({ initialTheme }: Props) {
                 <div
                   className={`rounded-lg p-2 ${
                     isSelected
-                      ? "bg-[var(--primary)] text-white"
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground,#ffffff)]"
                       : "bg-[var(--sage)] text-[var(--primary)]"
                   }`}
                 >
@@ -121,10 +128,7 @@ export default function AppearanceSettings({ initialTheme }: Props) {
                 </div>
 
                 {isSelected && (
-                  <Check
-                    size={18}
-                    className="text-[var(--primary)]"
-                  />
+                  <Check size={18} className="text-[var(--primary)]" />
                 )}
               </div>
 
@@ -140,33 +144,31 @@ export default function AppearanceSettings({ initialTheme }: Props) {
         })}
       </div>
 
-      <div className="mt-4 flex min-h-5 items-center gap-2 text-xs">
+      <div
+        className="mt-4 flex min-h-5 items-center gap-2 text-xs"
+        role="status"
+        aria-live="polite"
+      >
         {isPending ? (
           <>
             <Loader2
               size={14}
               className="animate-spin text-[var(--primary)]"
             />
-
-            <span className="text-[var(--muted)]">
-              Saving preference...
-            </span>
+            <span className="text-[var(--muted)]">Saving preference...</span>
           </>
-        ) : message ? (
-          <span
-            className={
-              message.includes("saved.")
-                ? "text-[var(--primary)]"
-                : "text-red-600"
-            }
-            role="status"
-          >
-            {message}
+        ) : status.kind === "saved" ? (
+          <span className="text-[var(--primary)]">
+            Appearance preference saved.
           </span>
+        ) : status.kind === "local-only" ? (
+          <span className="text-[var(--warning,#92400e)]">{status.text}</span>
         ) : (
           <span className="text-[var(--muted)]">
             Current preference: {selectedTheme}
-            {theme === "system" ? " (device setting)" : ""}
+            {mounted && selectedTheme === "system" && resolvedTheme
+              ? ` (device is using ${resolvedTheme})`
+              : ""}
           </span>
         )}
       </div>

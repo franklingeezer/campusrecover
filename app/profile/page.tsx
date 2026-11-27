@@ -21,6 +21,7 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 import { updateProfile } from "./actions";
+import AvatarUpload from "./avatar-upload";
 
 type ProfilePageProps = {
   searchParams: Promise<{
@@ -179,17 +180,11 @@ async function ProfileContent({
         <section className="mb-6 overflow-hidden rounded-2xl border border-[#E0EAE5] bg-white shadow-sm">
           <div className="bg-[#0F3A2F] px-6 py-8 text-white sm:px-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.full_name}
-                  className="h-20 w-20 rounded-full border-4 border-white/20 object-cover"
-                />
-              ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#D7EDE3] text-2xl font-bold text-[#176F59]">
-                  {initials}
-                </div>
-              )}
+              <AvatarUpload
+  initialUrl={profile.avatar_url}
+  fullName={profile.full_name}
+  initials={initials}
+/>
 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">

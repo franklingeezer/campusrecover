@@ -23,7 +23,7 @@ async function DashboardContent() {
   // Fetch the user's profile.
   const { data: profile, error: profileError } = await supabase
   .from("profiles")
-  .select("full_name, student_id, email, department, role")
+  .select("full_name, student_id, email, department, role, avatar_url")
   .eq("id", user.id)
   .maybeSingle();
 
@@ -105,6 +105,8 @@ async function DashboardContent() {
     student_id: profile?.student_id || "Not available",
 
     email: profile?.email || user.email || "",
+
+    avatar_url: profile?.avatar_url ?? null,
 
     department: profile?.department || null,
     

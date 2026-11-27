@@ -1,10 +1,12 @@
-
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import {
-  Settings,
+  ArrowLeft,
   Bell,
+  ChevronRight,
+  Settings,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -31,6 +33,27 @@ function SettingsLoading() {
   );
 }
 
+const sections = [
+  {
+    title: "Account",
+    description: "Review your account and university information.",
+    icon: UserRound,
+    href: "/profile",
+  },
+  {
+    title: "Notifications",
+    description: "Manage updates about claims, matches, and handovers.",
+    icon: Bell,
+    href: null,
+  },
+  {
+    title: "Security",
+    description: "Manage your password and account security.",
+    icon: ShieldCheck,
+    href: null,
+  },
+];
+
 async function SettingsContent() {
   await connection();
 
@@ -44,7 +67,7 @@ async function SettingsContent() {
 
   const { data: settings, error } = await supabase
     .from("user_settings")
-    .select("*")
+    .select("theme")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -59,33 +82,16 @@ async function SettingsContent() {
       ? settings.theme
       : "system";
 
-  const sections = [
-    {
-      title: "Notifications",
-      description: "Manage updates about claims, matches, and handovers.",
-      icon: Bell,
-      status: "Coming next",
-    },
-    {
-      title: "Security",
-      description: "Manage your password and account security.",
-      icon: ShieldCheck,
-      status: "Coming next",
-    },
-    {
-      title: "Account",
-      description: "Review your account and university information.",
-      icon: UserRound,
-      status: "Available",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <header className="flex h-[76px] items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-6 sm:px-8">
-        <p className="text-sm text-[var(--muted)]">
-          CampusRecover / Settings
-        </p>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[var(--muted)] hover:text-[var(--primary)]"
+        >
+          <ArrowLeft size={16} />
+          Back to dashboard
+        </Link>
 
         <span className="text-lg font-bold text-[var(--foreground)]">
           CampusRecover
@@ -108,17 +114,25 @@ async function SettingsContent() {
           </p>
         </section>
 
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]"
+          >
+            We couldn&apos;t load your saved appearance preference, so the
+            default is shown. Changes you make here may not be saved to your
+            account.
+          </p>
+        )}
+
         <section className="space-y-4">
           <AppearanceSettings initialTheme={initialTheme} />
 
           {sections.map((section) => {
             const Icon = section.icon;
 
-            return (
-              <div
-                key={section.title}
-                className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-              >
+            const content = (
+              <>
                 <div className="flex items-center gap-4">
                   <div className="rounded-xl bg-[var(--sage)] p-3 text-[var(--primary)]">
                     <Icon size={22} />
@@ -135,17 +149,39 @@ async function SettingsContent() {
                   </div>
                 </div>
 
-                <span className="shrink-0 text-xs font-medium text-[var(--muted)]">
-                  {section.status}
-                </span>
+                {section.href ? (
+                  <ChevronRight
+                    size={20}
+                    className="shrink-0 text-[var(--muted)]"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <span className="shrink-0 text-xs font-medium text-[var(--muted)]">
+                    Coming soon
+                  </span>
+                )}
+              </>
+            );
+
+            return section.href ? (
+              <Link
+                key={section.title}
+                href={section.href}
+                className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:border-[var(--primary)]"
+              >
+                {content}
+              </Link>
+            ) : (
+              <div
+                key={section.title}
+                aria-disabled="true"
+                className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 opacity-80"
+              >
+                {content}
               </div>
             );
           })}
         </section>
-
-        <p className="text-xs text-[var(--muted)]">
-          Your saved appearance preference: {initialTheme}.
-        </p>
       </main>
     </div>
   );

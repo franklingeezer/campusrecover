@@ -1,20 +1,66 @@
 @import "tailwindcss";
 
+/* Tailwind v4 defaults dark: to the OS setting. This makes dark: follow the
+   .dark class that next-themes sets, so the Light/Dark/System toggle works. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   CampusRecover design tokens
+   - Light values live on :root, dark values on .dark
+     (next-themes toggles the "dark" class on <html>).
+   - Existing variable names are kept, so current pages that use
+     var(--primary), var(--muted) etc. keep working.
+   - New tokens are mapped into Tailwind below, so you can write
+     bg-primary, text-muted, border-border instead of raw hex.
+   ============================================================ */
+
 :root {
   color-scheme: light;
 
+  /* Surfaces */
   --background: #f6f8f7;
   --foreground: #26352f;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --sidebar: #ffffff;
+  --input: #ffffff;
+  --sage: #e6efea;
+  --border: #e2e8e5;
+
+  /* Brand */
   --primary: #176b55;
   --primary-dark: #173d32;
-  --muted: #64748b;
-  --surface: #ffffff;
-  --sage: #e6efea;
+  --primary-hover: #125642;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e6efea;
 
-  --border: #e2e8e5;
-  --input: #ffffff;
-  --sidebar: #ffffff;
-  --card: #ffffff;
+  /* Text */
+  --muted: #64748b;
+
+  /* Item type: lost = warm, found = brand green */
+  --lost: #b45309;
+  --lost-bg: #fef3e2;
+  --found: #176b55;
+  --found-bg: #e3f3ec;
+
+  /* Status (claims, reports, handovers) */
+  --success: #166534;
+  --success-bg: #e3f4e8;
+  --warning: #92400e;
+  --warning-bg: #fef3c7;
+  --danger: #b91c1c;
+  --danger-bg: #fdeaea;
+  --info: #1d4ed8;
+  --info-bg: #e7eefc;
+  --neutral: #475569;
+  --neutral-bg: #eef1f0;
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgb(16 40 32 / 0.05), 0 4px 12px rgb(16 40 32 / 0.04);
+  --ring: #176b55;
 }
 
 .dark {
@@ -22,30 +68,106 @@
 
   --background: #101a16;
   --foreground: #e5eee9;
+  --surface: #192720;
+  --card: #192720;
+  --sidebar: #14221b;
+  --input: #192720;
+  --sage: #263b31;
+  --border: #30443a;
+
   --primary: #55b995;
   --primary-dark: #a3d8c2;
-  --muted: #9aada4;
-  --surface: #192720;
-  --sage: #263b31;
+  --primary-hover: #6cc7a5;
+  --primary-foreground: #08241a;
+  --primary-soft: #1f3a2f;
 
-  --border: #30443a;
-  --input: #192720;
-  --sidebar: #14221b;
-  --card: #192720;
+  --muted: #9aada4;
+
+  --lost: #fbbf6a;
+  --lost-bg: #3a2a12;
+  --found: #7dd3b0;
+  --found-bg: #17372b;
+
+  --success: #86e0a1;
+  --success-bg: #153a24;
+  --warning: #fcd34d;
+  --warning-bg: #3a2e0e;
+  --danger: #fca5a5;
+  --danger-bg: #3d1a1a;
+  --info: #93b4fb;
+  --info-bg: #1b2a4d;
+  --neutral: #b6c4bd;
+  --neutral-bg: #22332b;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.25);
+  --ring: #55b995;
 }
 
+/* ------------------------------------------------------------
+   Tailwind v4: expose tokens as utilities
+   e.g. bg-primary, text-primary-foreground, bg-success-bg,
+        text-lost, border-border, rounded-card, shadow-card
+   ------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-input: var(--input);
+  --color-sage: var(--sage);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-lost: var(--lost);
+  --color-lost-bg: var(--lost-bg);
+  --color-found: var(--found);
+  --color-found-bg: var(--found-bg);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-neutral: var(--neutral);
+  --color-neutral-bg: var(--neutral-bg);
+
+  --radius-card: var(--radius-md);
+  --shadow-card: var(--shadow-card);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Noto Sans", sans-serif;
+}
+
+/* ------------------------------------------------------------
+   Base
+   ------------------------------------------------------------ */
 * {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   transition:
     background-color 180ms ease,
     color 180ms ease;
@@ -54,6 +176,24 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+/* Keyboard focus: visible for everyone who needs it, hidden for mouse clicks */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline-offset: 0;
 }
 
 ::selection {
@@ -66,14 +206,89 @@ a {
   color: #ffffff;
 }
 
-/* Hide all scrollbars without disabling scrolling */
+/* Slim, quiet scrollbars (previously hidden entirely, which removed the
+   visual cue that a list or table can scroll) */
 * {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 *::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  width: 8px;
+  height: 8px;
 }
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   Reusable component classes (optional, use as you migrate)
+   ------------------------------------------------------------ */
+
+/* Status / type pill: <span class="pill pill-found">Found</span> */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.pill-lost { background: var(--lost-bg); color: var(--lost); }
+.pill-found { background: var(--found-bg); color: var(--found); }
+.pill-success { background: var(--success-bg); color: var(--success); }
+.pill-warning { background: var(--warning-bg); color: var(--warning); }
+.pill-danger { background: var(--danger-bg); color: var(--danger); }
+.pill-info { background: var(--info-bg); color: var(--info); }
+.pill-neutral { background: var(--neutral-bg); color: var(--neutral); }
+
+/* Card surface */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* Primary button: text uses --primary-foreground so it stays readable in dark mode */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 150ms ease;
+}
+
+.btn-primary:hover { background: var(--primary-hover); }
